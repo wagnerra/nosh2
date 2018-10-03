@@ -11122,7 +11122,7 @@ class Controller extends BaseController
             new \Github\HttpClient\Cache\FilesystemCache('/tmp/github-api-cache')
         );
         $client = new \Github\Client($client);
-        $result = $client->api('repo')->commits()->all('shihjay2', 'nosh2', ['sha' => 'master']);
+        $result = $client->api('repo')->commits()->all('wagnerra', 'nosh2', ['sha' => 'master']);
         return $result;
     }
 
@@ -11136,7 +11136,7 @@ class Controller extends BaseController
             new \Github\HttpClient\Cache\FilesystemCache('/tmp/github-api-cache')
         );
         $client = new \Github\Client($client);
-        $result = $client->api('repo')->releases()->latest('shihjay2', 'nosh2');
+        $result = $client->api('repo')->releases()->latest('wagnerra', 'nosh2');
         return $result;
     }
 
@@ -11150,7 +11150,7 @@ class Controller extends BaseController
             new \Github\HttpClient\Cache\FilesystemCache('/tmp/github-api-cache')
         );
         $client = new \Github\Client($client);
-        $result = $client->api('repo')->commits()->show('shihjay2', 'nosh2', $sha);
+        $result = $client->api('repo')->commits()->show('wagnerra', 'nosh2', $sha);
         return $result;
     }
 
