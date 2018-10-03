@@ -34,6 +34,8 @@ use Swift_SmtpTransport;
 use Session;
 use SoapBox\Formatter\Formatter;
 use URL;
+use Twilio\Rest\Client;
+
 
 class Controller extends BaseController
 {
@@ -11239,7 +11241,8 @@ class Controller extends BaseController
                 if ($row->reminder_method == 'Cellular Phone') {
                     $data_message['item'] = 'New Medication: ' . $rx . '; ' . $link;
                     $message = view('emails.blank', $data_message)->render();
-                    $this->textbelt($to, $message, $row2->practice_id);
+                    // $this->textbelt($to, $message, $row2->practice_id);
+                    $this->sms_twilio($to, $message, $row2->practice_id);
                 } else {
                     $data_message['item'] = 'You have a new medication prescribed to you: ' . $rx . '; For more details, click here: ' . $link;
                     $this->send_mail('emails.blank', $data_message, 'New Medication', $to, Session::get('practice_id'));
@@ -14800,7 +14803,8 @@ class Controller extends BaseController
             if ($reminder_method == 'Cellular Phone') {
                 $data_message['item'] = 'New Medication: ' . $link;
                 $message = view('emails.blank', $data_message)->render();
-                $this->textbelt($to, $message, $row2->practice_id);
+                // $this->textbelt($to, $message, $row2->practice_id);
+                $this->sms_twilio($to, $message, $row2->practice_id);
             } else {
                 $data_message['item'] = 'You have a new medication prescribed to you.  For more details, click here: ' . $link;
                 $this->send_mail('emails.blank', $data_message, 'New Medication', $to, Session::get('practice_id'));
@@ -16291,7 +16295,8 @@ class Controller extends BaseController
                     $data_message['additional_message'] = $practice->additional_message;
                     if ($patient->reminder_method == 'Cellular Phone') {
                         $message = view('emails.remindertext', $data_message)->render();
-                        $this->textbelt($patient->reminder_to, $message, Session::get('practice_id'));
+                        // $this->textbelt($patient->reminder_to, $message, Session::get('practice_id'));
+                        $this->sms_twilio($patient->reminder_to, $message, Session::get('practice_id'));
                     } else {
                         $this->send_mail('emails.reminder', $data_message, 'Appointment Reminder', $patient->reminder_to, Session::get('practice_id'));
                     }
@@ -16994,6 +16999,36 @@ class Controller extends BaseController
         $output = curl_exec($ch);
         curl_close($ch);
         return $output;
+    }
+
+   /**
+    * SMS notifcation with Twilio
+    *
+    * @return Response
+    */
+    protected function sms_twilio($number, $message, $practice_id)
+    {
+
+        // Your Account SID and Auth Token from twilio.com/console
+        $sid = 'ACd40355cd167d5a8259ff650845456b39';
+        $token = 'ad5b967ac8198ac9b97a5a577d21803e';
+        $client = new Client($sid, $token);
+
+        $practice = DB::table('practiceinfo')->where('practice_id', '=', $practice_id)->first();
+        $invalids = array('(', ')', ' ', '-', '.');
+        $number = str_replace($invalids, "", $number);
+        
+        // Use the client to do fun stuff like send text messages!
+        $client->messages->create(
+            // the number you'd like to send the message to
+            '+55' . $number,
+            array(
+                // A Twilio phone number you purchased at twilio.com/console
+                'from' => '+18508885295',
+                // the body of the text message you'd like to send
+                'body' => $message
+            )
+        );
     }
 
     protected function timeline()

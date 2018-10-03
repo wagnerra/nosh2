@@ -8633,20 +8633,9 @@ class ChartController extends Controller {
                 $email = $request->input('email');
                 $mesg  = $this->send_mail('emails.apiregister', $data_message, 'URGENT: Invitation to access the personal electronic medical record of ' . Session::get('displayname'), $request->input('email'), '1');
             } else {
-                $email = $request->input('sms');
+                $number = $request->input('sms');
                 $message = "You've been invited to use" . $data_message['patient'] . "'s personal health record.  Go to " . $data_message['temp_url'] . " to register";
-                $url = 'http://textbelt.com/text';
-                $message1 = http_build_query([
-                    'number' => $request->input('sms'),
-                    'message' => $message
-                ]);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $message1);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $output = curl_exec ($ch);
-                curl_close ($ch);
+                $this->sms_twilio($number, $message, Session::get('practice_id'));
             }
             $data = [
                 'email' => $request->input('email'),
