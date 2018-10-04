@@ -8635,7 +8635,7 @@ class ChartController extends Controller {
             } else {
                 $number = $request->input('sms');
                 $message = "You've been invited to use" . $data_message['patient'] . "'s personal health record.  Go to " . $data_message['temp_url'] . " to register";
-                $this->sms_twilio($number, $message, Session::get('practice_id'));
+                $this->sms_sender($number, $message, Session::get('practice_id'));
             }
             $data = [
                 'email' => $request->input('email'),

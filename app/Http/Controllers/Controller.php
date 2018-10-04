@@ -7655,7 +7655,12 @@ class Controller extends BaseController
                 'appointment_extension' => $result->appointment_extension,
                 'appointment_interval' => $result->appointment_interval,
                 'appointment_message' => $result->appointment_message,
-                'sms_url' => $result->sms_url
+            	'sms_provider' => $result->sms_provider,
+                'sms_url' => $result->sms_url,
+            	'sms_api_key' => $result->sms_api_key,
+            	'sms_api_secret' => $result->sms_api_secret,
+            	'sms_phone_number' => $result->sms_phone_number,
+            	'sms_country_code' => $result->sms_country_code
             ];
             $items[] = [
                 'name' => 'fax_type',
@@ -7710,10 +7715,41 @@ class Controller extends BaseController
                 'default_value' => $extensions_arr['appointment_message']
             ];
             $items[] = [
+                'name' => 'sms_provider',
+                'label' => 'SMS Provider',
+                'type' => 'select',
+                'select_items' => ['' => 'None', 'text' => 'TextBelt', 'twilio' => 'Twilio'],
+            	'default_value' => $extensions_arr['sms_provider']
+            ];
+            $items[] = [
                 'name' => 'sms_url',
                 'label' => 'SMS URL',
                 'type' => 'text',
                 'default_value' => $extensions_arr['sms_url']
+            ];
+            $items[] = [
+                'name' => 'sms_api_key',
+                'label' => 'SMS API Key',
+                'type' => 'text',
+                'default_value' => $extensions_arr['sms_api_key']
+            ];
+            $items[] = [
+                'name' => 'sms_api_secret',
+                'label' => 'SMS API Secret',
+                'type' => 'text',
+                'default_value' => $extensions_arr['sms_api_secret']
+            ];
+            $items[] = [
+                'name' => 'sms_phone_number',
+                'label' => 'SMS Phone Number',
+                'type' => 'text',
+                'default_value' => $extensions_arr['sms_phone_number']
+            ];
+            $items[] = [
+                'name' => 'sms_country_code',
+                'label' => 'SMS Country Code',
+                'type' => 'text',
+                'default_value' => $extensions_arr['sms_country_code']
             ];
         }
         if ($subtype == 'schedule') {
@@ -11242,7 +11278,7 @@ class Controller extends BaseController
                     $data_message['item'] = 'New Medication: ' . $rx . '; ' . $link;
                     $message = view('emails.blank', $data_message)->render();
                     // $this->textbelt($to, $message, $row2->practice_id);
-                    $this->sms_twilio($to, $message, $row2->practice_id);
+                    $this->sms_sender($to, $message, $row2->practice_id);
                 } else {
                     $data_message['item'] = 'You have a new medication prescribed to you: ' . $rx . '; For more details, click here: ' . $link;
                     $this->send_mail('emails.blank', $data_message, 'New Medication', $to, Session::get('practice_id'));
@@ -14804,7 +14840,7 @@ class Controller extends BaseController
                 $data_message['item'] = 'New Medication: ' . $link;
                 $message = view('emails.blank', $data_message)->render();
                 // $this->textbelt($to, $message, $row2->practice_id);
-                $this->sms_twilio($to, $message, $row2->practice_id);
+                $this->sms_sender($to, $message, $row2->practice_id);
             } else {
                 $data_message['item'] = 'You have a new medication prescribed to you.  For more details, click here: ' . $link;
                 $this->send_mail('emails.blank', $data_message, 'New Medication', $to, Session::get('practice_id'));
@@ -16296,7 +16332,7 @@ class Controller extends BaseController
                     if ($patient->reminder_method == 'Cellular Phone') {
                         $message = view('emails.remindertext', $data_message)->render();
                         // $this->textbelt($patient->reminder_to, $message, Session::get('practice_id'));
-                        $this->sms_twilio($patient->reminder_to, $message, Session::get('practice_id'));
+                        $this->sms_sender($patient->reminder_to, $message, Session::get('practice_id'));
                     } else {
                         $this->send_mail('emails.reminder', $data_message, 'Appointment Reminder', $patient->reminder_to, Session::get('practice_id'));
                     }
@@ -17008,29 +17044,51 @@ class Controller extends BaseController
     */
     protected function sms_twilio($number, $message, $practice_id)
     {
-
-        // Your Account SID and Auth Token from twilio.com/console
-        $sid = 'ACd40355cd167d5a8259ff650845456b39';
-        $token = 'ad5b967ac8198ac9b97a5a577d21803e';
-        $client = new Client($sid, $token);
-
         $practice = DB::table('practiceinfo')->where('practice_id', '=', $practice_id)->first();
+        
+        // Your Account SID and Auth Token from twilio.com/console
+        $sid = $practice->sms_api_key;
+        $token = $practice->sms_api_secret;
+        $phone = $practice->sms_phone_number;
+        $country = $practice->sms_country_code;
+        
+        $client = new Client($sid, $token);
+        
         $invalids = array('(', ')', ' ', '-', '.');
         $number = str_replace($invalids, "", $number);
         
         // Use the client to do fun stuff like send text messages!
         $client->messages->create(
             // the number you'd like to send the message to
-            '+55' . $number,
+            $country . $number,
             array(
                 // A Twilio phone number you purchased at twilio.com/console
-                'from' => '+18508885295',
+                'from' => $phone,
                 // the body of the text message you'd like to send
                 'body' => $message
             )
         );
     }
 
+    /**
+     * SMS Sender
+     *
+     * @return Response
+     */
+    protected function sms_sender($number, $message, $practice_id)
+    {
+    	$practice = DB::table('practiceinfo')->where('practice_id', '=', $practice_id)->first();
+    	if ($practice->sms_provider == 'text' || $practice->sms_provider == '' || $practice->sms_provider == null) {
+    		return textbelt($number, $message, $practice_id);
+    	}
+    	else 
+    	if ($practice->sms_provider == 'twilio') {
+    		return sms_twilio($number, $message, $practice_id);
+    	}
+    }
+    
+    
+    
     protected function timeline()
     {
         $pid = Session::get('pid');

@@ -6209,7 +6209,12 @@ class CoreController extends Controller
                 'Appointment Reminder Enabled' => $unit_arr[$result->appointment_extension],
                 'Appointment Interval' => $appt_arr[$result->appointment_interval],
                 'Reminder Message' => $result->appointment_message,
-                'SMS URL' => $result->sms_url
+            	'SMS Provider' => $result->sms_provider,
+                'SMS URL' => $result->sms_url,
+            	'SMS API Key' => $result->sms_api_key,
+            	'SMS API Secret' => $result->sms_api_secret,
+            	'SMS Phone Number' => $result->sms_phone_number,
+            	'SMS Country Code' => $result->sms_country_code
             ];
             $return = $this->header_build($header_arr, 'Practice Information');
             foreach ($info_arr as $key1 => $value1) {
