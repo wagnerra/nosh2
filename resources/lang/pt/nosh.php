@@ -390,4 +390,7 @@ return [
     "api_uma_register3" => "You have been invited to access your patient's health record.  Please click on the following link to complete your registration.",
     "api_uma_register4" => "Make sure you have your Provider NPI with you as you'll need this information to successfully register your account.",
     "api_uma_register5" => "Furthermore, if you do not register for your account within 24 hours, you'll need to contact your patient to send a valid invitation again.",
+
+	// Masks
+	"phone_mask" => "(99) 99999999?9",
 ];

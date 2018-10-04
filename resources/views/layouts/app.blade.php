@@ -1186,7 +1186,7 @@
             $('.nosh_textarea_short').css('height', '80px');
             $('.carousel-caption').css('background', 'rgba(0,0,0,0.5)');
             // Masks
-            $('.nosh_phone').mask('(999) 999-9999');
+            $('.nosh_phone').mask('{{ trans('nosh.phone_mask') }}');
             $("#upin").mask("aa9999999");
             $("#tax_id").mask("99-9999999");
             // DateTime
