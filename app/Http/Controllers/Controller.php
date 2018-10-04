@@ -17068,6 +17068,7 @@ class Controller extends BaseController
                 'body' => $message
             )
         );
+        return "OK";
     }
 
     /**
@@ -17079,11 +17080,12 @@ class Controller extends BaseController
     {
     	$practice = DB::table('practiceinfo')->where('practice_id', '=', $practice_id)->first();
     	if ($practice->sms_provider == 'text' || $practice->sms_provider == '' || $practice->sms_provider == null) {
-    		return textbelt($number, $message, $practice_id);
+    		return $this->textbelt($number, $message, $practice_id);
     	}
     	elseif ($practice->sms_provider == 'twilio') {
-    		return sms_twilio($number, $message, $practice_id);
+    		return $this->sms_twilio($number, $message, $practice_id);
     	}
+    	return "None";
     }
     
     
