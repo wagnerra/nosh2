@@ -17081,8 +17081,7 @@ class Controller extends BaseController
     	if ($practice->sms_provider == 'text' || $practice->sms_provider == '' || $practice->sms_provider == null) {
     		return textbelt($number, $message, $practice_id);
     	}
-    	else 
-    	if ($practice->sms_provider == 'twilio') {
+    	elseif ($practice->sms_provider == 'twilio') {
     		return sms_twilio($number, $message, $practice_id);
     	}
     }
