@@ -17085,7 +17085,7 @@ class Controller extends BaseController
     	elseif ($practice->sms_provider == 'twilio') {
     		return $this->sms_twilio($number, $message, $practice_id);
     	}
-    	return "None";
+    	return "Error - No SMS Provider";
     }
     
     
