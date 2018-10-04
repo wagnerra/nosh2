@@ -261,7 +261,7 @@ class AjaxChartController extends Controller
             $data_message['item'] = trans('nosh.test_reminder');
             if ($row->reminder_method == 'Cellular Phone') {
                 $message = view('emails.blank', $data_message)->render();
-                $this->textbelt($row->phone_cell, $message, Session::get('practice_id'));
+                $this->sms_sender($row->phone_cell, $message, Session::get('practice_id'));
                 $result = trans('nosh.sms_success');
             } else {
                 $this->send_mail('emails.blank', $data_message, 'Test Notification', $to, Session::get('practice_id'));
