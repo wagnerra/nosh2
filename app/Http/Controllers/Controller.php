@@ -17068,6 +17068,7 @@ class Controller extends BaseController
                 'body' => $message
             )
         );
+        return "OK";
     }
 
     /**
@@ -17084,6 +17085,7 @@ class Controller extends BaseController
     	elseif ($practice->sms_provider == 'twilio') {
     		return sms_twilio($number, $message, $practice_id);
     	}
+    	return "None";
     }
     
     
